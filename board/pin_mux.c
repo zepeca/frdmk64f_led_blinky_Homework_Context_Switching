@@ -29,6 +29,11 @@ board: FRDM-K64F
 #include "fsl_gpio.h"
 #include "pin_mux.h"
 
+/************defines****************************************************************/
+#define PIN16_IDX                       16u   /*!< Pin number for pin 16 in a port */
+#define PIN17_IDX                       17u   /*!< Pin number for pin 17 in a port */
+#define SOPT5_UART0TXSRC_UART_TX      0x00u   /*!< UART 0 transmit data source select: UART0_TX pin */
+
 /* FUNCTION ************************************************************************************************************
  *
  * Function Name : BOARD_InitBootPins
@@ -92,6 +97,13 @@ void BOARD_InitPins(void)
 
     /* PORTB22 (pin 68) is configured as PTB22 */
     PORT_SetPinMux(BOARD_LED_RED_PORT, BOARD_LED_RED_PIN, kPORT_MuxAsGpio);
+
+    PORT_SetPinMux(PORTB, PIN16_IDX, kPORT_MuxAlt3);           /* PORTB16 (pin 62) is configured as UART0_RX */
+    PORT_SetPinMux(PORTB, PIN17_IDX, kPORT_MuxAlt3);           /* PORTB17 (pin 63) is configured as UART0_TX */
+    SIM->SOPT5 = ((SIM->SOPT5 &
+    (~(SIM_SOPT5_UART0TXSRC_MASK)))                          /* Mask bits to zero which are setting */
+      | SIM_SOPT5_UART0TXSRC(SOPT5_UART0TXSRC_UART_TX)       /* UART 0 transmit data source select: UART0_TX pin */
+    );
 }
 /***********************************************************************************************************************
  * EOF

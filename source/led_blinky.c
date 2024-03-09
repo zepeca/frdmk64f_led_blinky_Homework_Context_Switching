@@ -8,6 +8,7 @@
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "board.h"
+#include "fsl_debug_console.h"
 
 /*******************************************************************************
  * Definitions
@@ -15,6 +16,8 @@
 #define BOARD_LED_GPIO     BOARD_LED_RED_GPIO
 #define BOARD_LED_GPIO_PIN BOARD_LED_RED_PIN
 
+#define SYSTICK_FREQUENCY_HZ 20 /* 1/SYSTICK_FREQUENCY_HZ is seconds */
+#define DELAY_SYSTICK_ENABLE 0 /* SysTick_DelayTicks function enable */
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
@@ -27,14 +30,13 @@ volatile uint32_t g_systickCounter;
 /*******************************************************************************
  * Code
  ******************************************************************************/
-void SysTick_Handler(void)
+
+__attribute__ ((weak, section(".after_vectors"))) void SysTick_Handler(void)
 {
-    if (g_systickCounter != 0U)
-    {
-        g_systickCounter--;
-    }
+	PRINTF("Interrupt from System Timer\n\r");
 }
 
+#if DELAY_SYSTICK_ENABLE
 void SysTick_DelayTicks(uint32_t n)
 {
     g_systickCounter = n;
@@ -42,6 +44,7 @@ void SysTick_DelayTicks(uint32_t n)
     {
     }
 }
+#endif
 
 /*!
  * @brief Main function
@@ -52,6 +55,11 @@ int main(void)
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
 
+    BOARD_InitDebugConsole();
+
+    SysTick_Config(SystemCoreClock/SYSTICK_FREQUENCY_HZ);
+
+#if 0
     /* Set systick reload value to generate 1ms interrupt */
     if (SysTick_Config(SystemCoreClock / 1000U))
     {
@@ -66,4 +74,7 @@ int main(void)
         SysTick_DelayTicks(1000U);
         GPIO_PortToggle(BOARD_LED_GPIO, 1u << BOARD_LED_GPIO_PIN);
     }
+#endif
+
+    while (1);/*main loop*/
 }

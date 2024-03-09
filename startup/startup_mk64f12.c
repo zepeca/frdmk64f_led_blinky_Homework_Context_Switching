@@ -578,9 +578,11 @@ WEAK_AV void PendSV_Handler(void)
 { while(1) {}
 }
 
+#if 0 /*SysTick_Handler weak definition in led_blinky.c*/
 WEAK_AV void SysTick_Handler(void)
 { while(1) {}
 }
+#endif
 
 //*****************************************************************************
 // Processor ends up here if an unexpected interrupt occurs or a specific
